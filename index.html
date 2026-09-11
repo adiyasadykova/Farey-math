@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farey Sequences & Pythagorean Triples</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="navbar-container">
+            <h1 class="navbar-title">
+                <span class="logo-icon">∞</span>
+                Farey Sequences & Pythagorean Triples
+            </h1>
+            <p class="navbar-subtitle">Mathematical visualization of ancient number theory</p>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="nav-title">Explore</h3>
+                    <button class="nav-item active" data-section="farey">
+                        <span class="icon">█</span> Farey Sequences
+                    </button>
+                    <button class="nav-item" data-section="stern-brocot">
+                        <span class="icon">◆</span> Stern-Brocot Tree
+                    </button>
+                    <button class="nav-item" data-section="pythagorean">
+                        <span class="icon">▲</span> Pythagorean Triples
+                    </button>
+                    <button class="nav-item" data-section="statistics">
+                        <span class="icon">📊</span> Statistics
+                    </button>
+                    <button class="nav-item" data-section="comparison">
+                        <span class="icon">⟷</span> Comparison
+                    </button>
+                </div>
+            </nav>
+
+            <div class="sidebar-info">
+                <div class="info-card">
+                    <h4>About This Project</h4>
+                    <p>Visualizing the deep connections between Farey sequences, Stern-Brocot trees, and Pythagorean triples through interactive mathematics.</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <!-- SECTION 1: Farey Sequence Explorer -->
+            <section id="farey" class="section active">
+                <div class="section-header">
+                    <h2>Farey Sequence Explorer</h2>
+                    <p class="section-subtitle">All reduced fractions between 0 and 1 with denominator ≤ n</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="farey-slider">Farey Order (n):</label>
+                        <input type="range" id="farey-slider" min="1" max="100" value="20" class="slider">
+                        <span id="farey-value" class="value-display">20</span>
+                    </div>
+                    <button id="farey-compute" class="btn btn-primary">Generate Sequence</button>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Number Line Visualization</h3>
+                        <div id="farey-numberline" class="visualization"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Sequence Details</h3>
+                        <div id="farey-details" class="details-box">
+                            <p class="loading">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h3>Mathematical Properties</h3>
+                    <div class="math-info">
+                        <p>For consecutive fractions <span class="math">a/b</span> and <span class="math">c/d</span> in F<sub>n</sub>:</p>
+                        <p class="math-formula" id="formula-farey">|bc - ad| = 1</p>
+                        <p>Each fraction <span class="math">m/n</span> with m > n generates a Pythagorean triple via Euclid's formula.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Stern-Brocot Tree Visualizer -->
+            <section id="stern-brocot" class="section">
+                <div class="section-header">
+                    <h2>Stern-Brocot Tree Visualizer</h2>
+                    <p class="section-subtitle">Every positive reduced fraction appears exactly once</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="tree-slider">Tree Depth:</label>
+                        <input type="range" id="tree-slider" min="1" max="8" value="4" class="slider">
+                        <span id="tree-value" class="value-display">4</span>
+                    </div>
+                    <button id="tree-compute" class="btn btn-primary">Generate Tree</button>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Tree Structure</h3>
+                        <div id="stern-brocot-tree" class="visualization tree-viz"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Color Legend</h3>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <span class="legend-color primitive"></span>
+                                <span class="legend-label">Primitive (opposite parity, gcd=1)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color non-primitive"></span>
+                                <span class="legend-label">Non-primitive (same parity or gcd>1)</span>
+                            </div>
+                        </div>
+                        <div id="tree-stats" class="details-box">
+                            <p class="loading">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h3>Node Information</h3>
+                    <div id="tree-node-info" class="node-info-box">
+                        <p>Hover over or click a node to see details</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: Pythagorean Triple Generator -->
+            <section id="pythagorean" class="section">
+                <div class="section-header">
+                    <h2>Pythagorean Triple Generator</h2>
+                    <p class="section-subtitle">Euclid's formula: x = m² - n², y = 2mn, z = m² + n²</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Input Fraction</h3>
+                        <div class="input-group">
+                            <label for="triple-m">Numerator (m):</label>
+                            <input type="number" id="triple-m" min="2" value="5" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label for="triple-n">Denominator (n):</label>
+                            <input type="number" id="triple-n" min="1" value="2" class="input-field">
+                        </div>
+                        <button id="triple-compute" class="btn btn-primary">Generate Triple</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Results</h3>
+                        <div id="triple-result" class="result-box">
+                            <p class="loading">Enter m and n, then generate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h3>Primitive vs Non-Primitive</h3>
+                    <div class="math-info">
+                        <p>A Pythagorean triple is <strong>primitive</strong> if gcd(x, y, z) = 1.</p>
+                        <p>From Euclid's formula, a triple is primitive if and only if:</p>
+                        <ul style="margin-top: 8px;">
+                            <li>gcd(m, n) = 1 (m and n are coprime)</li>
+                            <li>m and n have opposite parity (one even, one odd)</li>
+                            <li>m > n > 0</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: Statistics Dashboard -->
+            <section id="statistics" class="section">
+                <div class="section-header">
+                    <h2>Statistics Dashboard</h2>
+                    <p class="section-subtitle">Analysis of Farey sequences and primitive triples</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="stats-slider">Farey Order (n):</label>
+                        <input type="range" id="stats-slider" min="1" max="100" value="20" class="slider">
+                        <span id="stats-value" class="value-display">20</span>
+                    </div>
+                    <button id="stats-compute" class="btn btn-primary">Calculate Statistics</button>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Overview</h3>
+                        <div id="stats-overview" class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Total Fractions</div>
+                                <div class="stat-value" id="stat-total">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Primitive Triples</div>
+                                <div class="stat-value primitive" id="stat-primitive">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Non-Primitive</div>
+                                <div class="stat-value non-primitive" id="stat-non-primitive">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Primitive %</div>
+                                <div class="stat-value" id="stat-percentage">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Distribution Chart</h3>
+                        <canvas id="stats-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h3>Depth Analysis</h3>
+                    <div id="stats-depth" class="details-box">
+                        <p class="loading">Loading...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: Comparison View -->
+            <section id="comparison" class="section">
+                <div class="section-header">
+                    <h2>Side-by-Side Comparison</h2>
+                    <p class="section-subtitle">Farey Sequences vs Stern-Brocot Tree</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="comp-farey-slider">Farey Order:</label>
+                        <input type="range" id="comp-farey-slider" min="1" max="50" value="10" class="slider">
+                        <span id="comp-farey-value" class="value-display">10</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="comp-tree-slider">Tree Depth:</label>
+                        <input type="range" id="comp-tree-slider" min="1" max="6" value="3" class="slider">
+                        <span id="comp-tree-value" class="value-display">3</span>
+                    </div>
+                    <button id="comp-compute" class="btn btn-primary">Compare</button>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Farey Sequence F<sub>n</sub></h3>
+                        <div id="comp-farey" class="comparison-box">
+                            <p class="loading">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Stern-Brocot Tree</h3>
+                        <div id="comp-tree" class="comparison-box">
+                            <p class="loading">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h3>Insights</h3>
+                    <div class="insight-box">
+                        <p><strong>Connection:</strong> Both structures enumerate all positive reduced fractions.</p>
+                        <p><strong>Farey:</strong> Organized by order n, contains all fractions a/b where gcd(a,b)=1 and b≤n.</p>
+                        <p><strong>Stern-Brocot:</strong> Generated recursively via the mediant property: between a/b and c/d lies (a+c)/(b+d).</p>
+                        <p><strong>Pythagorean Connection:</strong> Each fraction m/n generates a triple; primitive triples arise only when gcd(m,n)=1 and m,n have opposite parity.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>A mathematical research project exploring connections in number theory</p>
+            <p class="footer-credit">Built with D3.js, KaTeX, and Chart.js | Flask backend</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='tree.js') }}"></script>
+
+    <!-- KaTeX auto-render -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ]
+            });
+        });
+    </script>
+</body>
+</html>
